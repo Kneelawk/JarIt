@@ -9,6 +9,6 @@ object Dimensions {
     val JAR_DIMENSION_WORLD_KEY: RegistryKey<World> = RegistryKey.of(Registry.WORLD_KEY, id("jar-dimension"))
 
     fun init() {
-
+        Registry.register(Registry.CHUNK_GENERATOR, id("void"), VoidChunkGenerator.CODEC)
     }
 }

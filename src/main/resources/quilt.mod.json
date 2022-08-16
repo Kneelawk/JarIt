@@ -9,8 +9,9 @@
       "description": "You can put things in jars.",
       "contributors": {
         "Kneelawk": "Owner",
-        "modmuss50": "Inspiration"
+        "modmuss50": "Original"
       },
+      "license": "MIT",
       "contact": {
         "homepage": "https://github.com/Kneelawk/ChunkInAJar",
         "issues": "https://github.com/Kneelawk/ChunkInAJar/issues",
