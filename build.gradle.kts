@@ -31,6 +31,8 @@ repositories {
     mavenCentral()
 
     maven("https://maven.terraformersmc.com/releases/") { name = "TerraformersMC" }
+    maven("https://maven.alexiil.uk/") { name = "AlexIIL" }
+    maven("https://kneelawk.com/maven/") { name = "Kneelawk" }
 }
 
 dependencies {
@@ -52,6 +54,9 @@ dependencies {
 
     // Fabric Language Kotlin
     modImplementation(libs.fabric.kotlin)
+
+    // LNS
+    modImplementation(libs.lns)
 
     // QOL runtime mods (e.g. mod menu)
     modRuntimeOnly(libs.bundles.qol.mods)
