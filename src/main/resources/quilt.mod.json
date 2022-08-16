@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "com.kneelawk",
+    "id": "world-in-a-jar",
+    "version": "${version}",
+    "metadata": {
+      "name": "World in a Jar",
+      "description": "You can put things in jars.",
+      "contributors": {
+        "Kneelawk": "Owner"
+      },
+      "contact": {
+        "homepage": "https://github.com/Kneelawk/WorldInAJar",
+        "issues": "https://github.com/Kneelawk/WorldInAJar/issues",
+        "sources": "https://github.com/Kneelawk/WorldInAJar"
+      },
+      "icon": "assets/world-in-a-jar/icon.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "init": "com.kneelawk.worldinajar.WorldInAJarModKt::init"
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=0.17.0-"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": ">=4.0.0-"
+      },
+      {
+        "id": "minecraft",
+        "versions": ">=1.19.2"
+      }
+    ]
+  },
+  "mixin": "world-in-a-jar.mixins.json"
+}
