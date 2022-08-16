@@ -2,24 +2,24 @@
   "schema_version": 1,
   "quilt_loader": {
     "group": "com.kneelawk",
-    "id": "world-in-a-jar",
+    "id": "chunk-in-a-jar",
     "version": "${version}",
     "metadata": {
-      "name": "World in a Jar",
+      "name": "Chunk in a Jar",
       "description": "You can put things in jars.",
       "contributors": {
         "Kneelawk": "Owner"
       },
       "contact": {
-        "homepage": "https://github.com/Kneelawk/WorldInAJar",
-        "issues": "https://github.com/Kneelawk/WorldInAJar/issues",
-        "sources": "https://github.com/Kneelawk/WorldInAJar"
+        "homepage": "https://github.com/Kneelawk/ChunkInAJar",
+        "issues": "https://github.com/Kneelawk/ChunkInAJar/issues",
+        "sources": "https://github.com/Kneelawk/CHunkInAJar"
       },
-      "icon": "assets/world-in-a-jar/icon.png"
+      "icon": "assets/chunk-in-a-jar/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
-      "init": "com.kneelawk.worldinajar.WorldInAJarModKt::init"
+      "init": "com.kneelawk.chunkinajar.ChunkInAJarModKt::init"
     },
     "depends": [
       {
@@ -36,5 +36,5 @@
       }
     ]
   },
-  "mixin": "world-in-a-jar.mixins.json"
+  "mixin": "chunk-in-a-jar.mixins.json"
 }

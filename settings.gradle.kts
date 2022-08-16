@@ -10,4 +10,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "world-in-a-jar"
+rootProject.name = "chunk-in-a-jar"

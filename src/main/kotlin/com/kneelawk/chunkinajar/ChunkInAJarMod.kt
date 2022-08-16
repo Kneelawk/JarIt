@@ -1,4 +1,4 @@
-package com.kneelawk.worldinajar
+package com.kneelawk.chunkinajar
 
 import org.quiltmc.loader.api.ModContainer
 
