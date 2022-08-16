@@ -29,6 +29,8 @@ base {
 
 repositories {
     mavenCentral()
+
+    maven("https://maven.terraformersmc.com/releases/") { name = "TerraformersMC" }
 }
 
 dependencies {
@@ -50,6 +52,9 @@ dependencies {
 
     // Fabric Language Kotlin
     modImplementation(libs.fabric.kotlin)
+
+    // QOL runtime mods (e.g. mod menu)
+    modRuntimeOnly(libs.bundles.qol.mods)
 
     // We use JUnit 4 because many Minecraft classes require heavy mocking or complete gutting, meaning a custom
     // classloader is required. JUnit 5 does not yet support using custom classloaders.
