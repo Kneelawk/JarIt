@@ -2,10 +2,10 @@
   "schema_version": 1,
   "quilt_loader": {
     "group": "com.kneelawk",
-    "id": "chunk-in-a-jar",
+    "id": "jar-it",
     "version": "${version}",
     "metadata": {
-      "name": "Chunk in a Jar",
+      "name": "Jar It!",
       "description": "You can put things in jars.",
       "contributors": {
         "Kneelawk": "Owner",
@@ -13,15 +13,15 @@
       },
       "license": "MIT",
       "contact": {
-        "homepage": "https://github.com/Kneelawk/ChunkInAJar",
-        "issues": "https://github.com/Kneelawk/ChunkInAJar/issues",
-        "sources": "https://github.com/Kneelawk/CHunkInAJar"
+        "homepage": "https://github.com/Kneelawk/JarIt",
+        "issues": "https://github.com/Kneelawk/JarIt/issues",
+        "sources": "https://github.com/Kneelawk/JarIt"
       },
-      "icon": "assets/chunk-in-a-jar/icon.png"
+      "icon": "assets/jar-it/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
-      "init": "com.kneelawk.chunkinajar.ChunkInAJarModKt::init"
+      "init": "com.kneelawk.jarit.JarItModKt::init"
     },
     "depends": [
       {
@@ -46,5 +46,5 @@
       }
     ]
   },
-  "mixin": "chunk-in-a-jar.mixins.json"
+  "mixin": "jar-it.mixins.json"
 }

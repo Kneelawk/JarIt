@@ -1,4 +1,4 @@
-package com.kneelawk.chunkinajar.dimension
+package com.kneelawk.jarit.dimension
 
 import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos

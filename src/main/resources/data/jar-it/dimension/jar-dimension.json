@@ -1,7 +1,7 @@
 {
-  "type": "chunk-in-a-jar:jar-dimension_type",
+  "type": "jar-it:jar-dimension_type",
   "generator": {
-    "type": "chunk-in-a-jar:void",
+    "type": "jar-it:void",
     "biome_source": {
       "type": "minecraft:fixed",
       "biome": "minecraft:plains"

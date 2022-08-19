@@ -1,4 +1,4 @@
-package com.kneelawk.chunkinajar.dimension
+package com.kneelawk.jarit.dimension
 
 import net.minecraft.nbt.NbtCompound
 

@@ -1,4 +1,4 @@
-package com.kneelawk.chunkinajar.dimension
+package com.kneelawk.jarit.dimension
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder

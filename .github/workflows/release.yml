@@ -61,7 +61,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m 'Publish Chunk In A Jar ${{ steps.tag_version.outputs.tag }}'
+          git commit -m 'Publish Jar It! ${{ steps.tag_version.outputs.tag }}'
         working-directory: deploy
       - name: Push Deployment Repository
         uses: ad-m/github-push-action@master
@@ -90,8 +90,8 @@ jobs:
             let lines = process.env.CHANGELOG.split('\n');
             let changesStart = lines.findIndex(line => line.startsWith('*'));
             lines.splice(0, changesStart);
-            lines.unshift(`**Chunk In A Jar ${versions[0]} has been released for Minecraft ${versions[1]}!**`, '', '__Changes:__');
-            lines.push("Available on Kneelawk's maven: https://kneelawk.com/maven/", `With the identifier: \`com.kneelawk:chunk-in-a-jar:${mavenVersion}\``);
+            lines.unshift(`**Jar It! ${versions[0]} has been released for Minecraft ${versions[1]}!**`, '', '__Changes:__');
+            lines.push("Available on Kneelawk's maven: https://kneelawk.com/maven/", `With the identifier: \`com.kneelawk:jar-it:${mavenVersion}\``);
             return lines.join('\n');
           result-encoding: string
       - name: Make Release Announcement

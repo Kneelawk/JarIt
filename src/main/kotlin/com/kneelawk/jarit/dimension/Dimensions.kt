@@ -1,6 +1,6 @@
-package com.kneelawk.chunkinajar.dimension
+package com.kneelawk.jarit.dimension
 
-import com.kneelawk.chunkinajar.Constants.id
+import com.kneelawk.jarit.Constants.id
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.registry.RegistryKey
 import net.minecraft.world.World
