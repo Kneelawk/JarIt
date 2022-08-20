@@ -21,7 +21,8 @@
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
-      "init": "com.kneelawk.jarit.JarItModKt::init"
+      "init": "com.kneelawk.jarit.JarItModKt::init",
+      "client": "com.kneelawk.jarit.client.JarItModClientKt::init"
     },
     "depends": [
       {
