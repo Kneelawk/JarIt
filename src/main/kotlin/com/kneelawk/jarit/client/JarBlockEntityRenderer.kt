@@ -18,7 +18,7 @@ class JarBlockEntityRenderer(ctx: BlockEntityRendererFactory.Context) : BlockEnt
         private val bottom = id("block/jar_bottom_inside")
         private val side = id("block/jar_side_inside")
         private val bottomId = SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, bottom)
-        private val sideId = SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, bottom)
+        private val sideId = SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, side)
 
         fun init() {
             ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register { _, registry ->
@@ -32,19 +32,46 @@ class JarBlockEntityRenderer(ctx: BlockEntityRendererFactory.Context) : BlockEnt
         entity: JarBlockEntity, tickDelta: Float, matrices: MatrixStack, vertexConsumers: VertexConsumerProvider,
         light: Int, overlay: Int
     ) {
+        // will eventually be conditional
+        drawInsideFaces(matrices, vertexConsumers, light, overlay)
+    }
+
+    private fun drawInsideFaces(
+        matrices: MatrixStack, vertexConsumers: VertexConsumerProvider, light: Int, overlay: Int
+    ) {
         val model = matrices.peek().position
         val normal = matrices.peek().normal
         val buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE))
 
         bottomId.scope {
-            buf.pixelVertex(model, 4.0, 1.0, 4.0).color(-1).frameUV(4.0, 4.0).overlay(overlay)
+            buf.pixelVertex(model, 4, 1, 4).color(-1).frameUV(4, 4).overlay(overlay)
                 .light(light).normal(normal, 0f, 1f, 0f).next()
-            buf.pixelVertex(model, 4.0, 1.0, 12.0).color(-1).frameUV(4.0, 12.0).overlay(overlay)
+            buf.pixelVertex(model, 4, 1, 12).color(-1).frameUV(4, 12).overlay(overlay)
                 .light(light).normal(normal, 0f, 1f, 0f).next()
-            buf.pixelVertex(model, 12.0, 1.0, 12.0).color(-1).frameUV(12.0, 12.0).overlay(overlay)
+            buf.pixelVertex(model, 12, 1, 12).color(-1).frameUV(12, 12).overlay(overlay)
                 .light(light).normal(normal, 0f, 1f, 0f).next()
-            buf.pixelVertex(model, 12.0, 1.0, 4.0).color(-1).frameUV(12.0, 4.0).overlay(overlay)
+            buf.pixelVertex(model, 12, 1, 4).color(-1).frameUV(12, 4).overlay(overlay)
                 .light(light).normal(normal, 0f, 1f, 0f).next()
+        }
+
+        sideId.scope {
+            buf.pixelVertex(model, 4, 9, 12).color(-1).frameUV(12, 7).overlay(overlay).light(light)
+                .normal(normal, 1f, 0f, 0f).next()
+            buf.pixelVertex(model, 4, 1, 12).color(-1).frameUV(12, 15).overlay(overlay).light(light)
+                .normal(normal, 1f, 0f, 0f).next()
+            buf.pixelVertex(model, 4, 1, 4).color(-1).frameUV(4, 15).overlay(overlay).light(light)
+                .normal(normal, 1f, 0f, 0f).next()
+            buf.pixelVertex(model, 4, 9, 4).color(-1).frameUV(4, 7).overlay(overlay).light(light)
+                .normal(normal, 1f, 0f, 0f).next()
+
+            buf.pixelVertex(model, 4, 9, 4).color(-1).frameUV(4, 7).overlay(overlay).light(light)
+                .normal(normal, 0f, 0f, 1f).next()
+            buf.pixelVertex(model, 4, 1, 4).color(-1).frameUV(4, 15).overlay(overlay).light(light)
+                .normal(normal, 0f, 0f, 1f).next()
+            buf.pixelVertex(model, 12, 1, 4).color(-1).frameUV(12, 15).overlay(overlay).light(light)
+                .normal(normal, 0f, 0f, 1f).next()
+            buf.pixelVertex(model, 12, 9, 4).color(-1).frameUV(12, 7).overlay(overlay).light(light)
+                .normal(normal, 0f, 0f, 1f).next()
         }
     }
 }
