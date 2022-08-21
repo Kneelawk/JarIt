@@ -4,6 +4,7 @@ plugins {
     `maven-publish`
     alias(libs.plugins.quilt.loom)
     kotlin("jvm").version(libs.versions.kotlin.jvm.get())
+    alias(libs.plugins.minotaur)
 }
 
 val maven_group: String by project
@@ -116,6 +117,28 @@ tasks {
     test {
         useJUnit()
     }
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("o6qDedG5")
+    versionNumber.set(modVersion)
+    versionType.set("alpha")
+    val changelogFile = file("changelogs/changelog-v$modVersion.md")
+    if (changelogFile.exists()) {
+        changelog.set(changelogFile.readText())
+    }
+    uploadFile.set(tasks.remapJar.get())
+    additionalFiles.set(listOf(tasks.getByName("sourcesJar")))
+    gameVersions.set(listOf("1.19.2"))
+    loaders.set(listOf("quilt"))
+    dependencies.set(
+        listOf(
+            com.modrinth.minotaur.dependencies.ModDependency("qvIfYCYJ", "required"), // qsl
+            com.modrinth.minotaur.dependencies.ModDependency("lwVhp9o5", "required")  // qkl
+        )
+    )
+    syncBodyFrom.set(rootProject.file("README.md").readText())
 }
 
 publishing {
