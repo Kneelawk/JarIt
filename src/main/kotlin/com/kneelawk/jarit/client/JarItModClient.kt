@@ -8,7 +8,6 @@ import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap
 
 @Suppress("unused")
 fun init() {
-    JarBlockEntityRenderer.init()
     BlockEntityRendererRegistry.register(BlockEntities.JAR, ::JarBlockEntityRenderer)
 
     BlockRenderLayerMap.put(RenderLayer.getCutout(), Blocks.JAR)
