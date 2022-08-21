@@ -4,7 +4,9 @@ import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.JarBlockEntity
 import net.minecraft.block.Block
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.min
 import net.minecraft.block.Blocks as MCBlocks
@@ -191,6 +193,19 @@ object JarPlacement {
             }
         }
 
+        val insideArea = BlockBox(
+            fromStart.x, fromStart.y, fromStart.z, fromStart.x + jarSize, fromStart.y + jarSize, fromStart.z + jarSize
+        )
+
+        val offset = Vec3d.of(toStart.subtract(fromStart))
+
+        val players = world.getPlayers { insideArea.contains(it.blockPos) }
+        players.forEach {
+            val oldPos = it.pos
+            val newPos = oldPos.add(offset)
+            it.teleport(jarDim, newPos.x, newPos.y, newPos.z, it.headYaw, it.pitch)
+        }
+
         for (y in (0 until fullJarSize).reversed()) {
             for (z in 0 until fullJarSize) {
                 for (x in 0 until fullJarSize) {
@@ -239,6 +254,19 @@ object JarPlacement {
                     world.setBlockState(toMut, jarDim.getBlockState(fromMut), Block.NOTIFY_LISTENERS)
                 }
             }
+        }
+
+        val insideArea = BlockBox(
+            fromStart.x, fromStart.y, fromStart.z, fromStart.x + jarSize, fromStart.y + jarSize, fromStart.z + jarSize
+        )
+
+        val offset = Vec3d.of(toStart.subtract(fromStart))
+
+        val players = jarDim.getPlayers { insideArea.contains(it.blockPos) }
+        players.forEach {
+            val oldPos = it.pos
+            val newPos = oldPos.add(offset)
+            it.teleport(world, newPos.x, newPos.y, newPos.z, it.headYaw, it.pitch)
         }
 
         for (y in (0 until jarDimInfo.maxJarSize + 2).reversed()) {
