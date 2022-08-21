@@ -1,4 +1,9 @@
 {
   "block.jar-it.jar": "Jar",
-  "item.jar-it.cork": "Jar Cork"
+  "block.jar-it.jar_glass": "Jar Glass",
+  "block.jar-it.jar_inside_cork": "Jar Inside Cork",
+  "block.jar-it.jar_inside_glass": "Jar Inside Glass",
+  "item.jar-it.jar_cork": "Jar Cork",
+  "item.jar-it.jar_opener": "Jar Opener",
+  "itemGroup.jar-it.item_group": "Jar It!"
 }

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "jar-it:block/jar_inside_cork"
+    }
+  }
+}

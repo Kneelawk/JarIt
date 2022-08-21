@@ -1,6 +1,6 @@
 package com.kneelawk.jarit.dimension
 
-import net.minecraft.block.Blocks
+import com.kneelawk.jarit.block.Blocks
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.math.min
@@ -8,8 +8,8 @@ import kotlin.math.min
 object JarPlacement {
     private const val REGION_SIZE = 32 * 16
 
-    private val GLASS_STATE by lazy { Blocks.GLASS.defaultState }
-    private val CORK_STATE by lazy { Blocks.OAK_PLANKS.defaultState }
+    private val GLASS_STATE by lazy { Blocks.JAR_INSIDE_GLASS.defaultState }
+    private val CORK_STATE by lazy { Blocks.JAR_INSIDE_CORK.defaultState }
 
     fun getJarStart(id: Long, maxSize: Int): BlockPos {
         val jarSize = maxSize + 2

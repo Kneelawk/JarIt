@@ -1,12 +1,10 @@
 package com.kneelawk.jarit.block
 
 import com.kneelawk.jarit.Constants
+import com.kneelawk.jarit.item.Items
 import com.kneelawk.jarit.item.JarBlockItem
 import com.kneelawk.jarit.util.multi
-import net.minecraft.block.AbstractBlock
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.Material
+import net.minecraft.block.*
 import net.minecraft.entity.EntityType
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -29,9 +27,32 @@ object Blocks {
                 .blockVision(::never)
         )
     }
-    val JAR_GLASS by lazy { Block(AbstractBlock.Settings.of(Material.GLASS)) }
+    val JAR_GLASS by lazy {
+        GlassBlock(
+            AbstractBlock.Settings.of(Material.GLASS)
+                .strength(0.3F)
+                .sounds(BlockSoundGroup.GLASS)
+                .nonOpaque()
+                .allowsSpawning(::never)
+                .solidBlock(::never)
+                .suffocates(::never)
+                .blockVision(::never)
+        )
+    }
 
     val JAR_INSIDE_GLASS by lazy {
+        GlassBlock(
+            AbstractBlock.Settings.of(Material.GLASS).strength(-1f, 3600000f).dropsNothing()
+                .sounds(BlockSoundGroup.GLASS)
+                .nonOpaque()
+                .allowsSpawning(::never)
+                .solidBlock(::never)
+                .suffocates(::never)
+                .blockVision(::never)
+        )
+    }
+
+    val JAR_INSIDE_CORK by lazy {
         Block(
             AbstractBlock.Settings.of(Material.GLASS).strength(-1f, 3600000f).dropsNothing()
                 .allowsSpawning(::never)
@@ -40,14 +61,18 @@ object Blocks {
 
     fun init() {
         registryScope(Constants.MOD_ID) {
-            multi(Registry.BLOCK, Registry.ITEM, { BlockItem(it, Item.Settings()) }) {
+            multi(Registry.BLOCK, Registry.ITEM, ::simpleBlockItem) {
                 JAR withId "jar" withAdded { JarBlockItem(it, Item.Settings()) }
-                JAR_GLASS withId "jar_glass"
+                JAR_GLASS withId "jar_glass" withAdded ::tabBlockItem
                 JAR_INSIDE_GLASS withId "jar_inside_glass"
+                JAR_INSIDE_CORK withId "jar_inside_cork"
             }
         }
     }
 
     private fun never(p0: BlockState, p1: BlockView, p2: BlockPos, p3: EntityType<*>): Boolean = false
     private fun never(p0: BlockState, p1: BlockView, p2: BlockPos): Boolean = false
+
+    private fun simpleBlockItem(block: Block): BlockItem = BlockItem(block, Item.Settings())
+    private fun tabBlockItem(block: Block): BlockItem = BlockItem(block, Item.Settings().group(Items.ITEM_GROUP))
 }
