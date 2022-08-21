@@ -34,8 +34,8 @@
         "versions": ">=4.0.0-"
       },
       {
-        "id": "fabric-language-kotlin",
-        "versions": ">=1.8.1+kotlin.1.7.0"
+        "id": "qkl",
+        "versions": "*"
       },
       {
         "id": "libnetworkstack",

@@ -57,6 +57,7 @@ dependencies {
 
     // LNS
     modImplementation(libs.lns)
+    include(libs.lns)
 
     // QOL runtime mods (e.g. mod menu)
     modRuntimeOnly(libs.bundles.qol.mods)
