@@ -13,4 +13,6 @@ fun init() {
     BlockRenderLayerMap.put(RenderLayer.getCutout(), Blocks.JAR)
     BlockRenderLayerMap.put(RenderLayer.getCutout(), Blocks.JAR_GLASS)
     BlockRenderLayerMap.put(RenderLayer.getCutout(), Blocks.JAR_INSIDE_GLASS)
+
+    ClientJarManager.init()
 }

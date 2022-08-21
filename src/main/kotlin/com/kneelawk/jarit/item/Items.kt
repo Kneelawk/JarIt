@@ -18,11 +18,11 @@ object Items {
     }
 
     val JAR_CORK by lazy {
-        Item(ITEM_SETTINGS)
+        JarCorkItem(ITEM_SETTINGS)
     }
 
     val JAR_OPENER by lazy {
-        Item(ITEM_SETTINGS)
+        JarOpenerItem(ITEM_SETTINGS)
     }
 
     fun init() {

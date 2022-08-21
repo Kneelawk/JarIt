@@ -2,9 +2,9 @@ package com.kneelawk.jarit.dimension
 
 import net.minecraft.nbt.NbtCompound
 
-data class JarInfo(val size: Int) {
+data class JarInfo(val jarId: Long, val size: Int) {
     companion object {
-        fun fromTag(nbt: NbtCompound): JarInfo = JarInfo(nbt.getInt("size"))
+        fun fromTag(jarId: Long, nbt: NbtCompound): JarInfo = JarInfo(jarId, nbt.getInt("size"))
     }
 
     fun toTag(nbt: NbtCompound) {
