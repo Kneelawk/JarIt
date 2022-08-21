@@ -7,7 +7,7 @@ quilt_mappings = "1.19.2+build.3"
 quilt_loader = "0.17.1"
 
 quilted_fabric_api = "4.0.0-beta.7+0.59.0-1.19.2"
-fabric_kotlin = "1.8.1+kotlin.1.7.0"
+quilt_kotlin = "0.1.3+kt.1.7.10+flk.1.8.2-SNAPSHOT"
 
 lns = "0.7.1-pre.0.3+kneelawk"
 
@@ -21,7 +21,7 @@ quilt_loader = { module = "org.quiltmc:quilt-loader", version.ref = "quilt_loade
 quilted_fabric_api = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "quilted_fabric_api" }
 quilted_fabric_api_deprecated = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api-deprecated", version.ref = "quilted_fabric_api" }
 
-fabric_kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_kotlin" }
+quilt_kotlin = { module = "org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries", version.ref = "quilt_kotlin" }
 
 lns = { module = "alexiil.mc.lib:libnetworkstack-base", version.ref = "lns" }
 

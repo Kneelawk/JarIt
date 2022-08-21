@@ -53,7 +53,7 @@ dependencies {
     modLocalRuntime(libs.quilted.fabric.api)
 
     // Fabric Language Kotlin
-    modImplementation(libs.fabric.kotlin)
+    modImplementation(libs.quilt.kotlin)
 
     // LNS
     modImplementation(libs.lns)
