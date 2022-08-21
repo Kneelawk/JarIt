@@ -96,6 +96,7 @@ jobs:
             let changesStart = lines.findIndex(line => line.startsWith('*'));
             lines.splice(0, changesStart);
             lines.unshift(`**Jar It! ${versions[0]} has been released for Minecraft ${versions[1]}!**`, '', '__Changes:__');
+            lines.push(`Available on Modrinth: https://modrinth.com/mod/jar-it/version/${modVersion}`);
             lines.push("Available on Kneelawk's maven: https://kneelawk.com/maven/", `With the identifier: \`com.kneelawk:jar-it:${mavenVersion}\``);
             return lines.join('\n');
           result-encoding: string
