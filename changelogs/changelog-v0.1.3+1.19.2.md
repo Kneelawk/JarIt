@@ -7,3 +7,4 @@ Changes:
 * Jars now copy block-entity NBT properly.
 * Made it so that shrinking a jar places the jar block at the bottom and expanding a jar assumes the jar being expanded
   is at the bottom.
+* Fix some blocks breaking when jarred.

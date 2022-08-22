@@ -187,12 +187,14 @@ object JarPlacement {
     ) {
         val fromMut = BlockPos.Mutable()
         val toMut = BlockPos.Mutable()
-        for (y in (0 until jarSize).reversed()) {
+        for (y in 0 until jarSize) {
             for (z in 0 until jarSize) {
                 for (x in 0 until jarSize) {
                     fromMut.set(fromStart, x, y, z)
                     toMut.set(toStart, x, y, z)
-                    toWorld.setBlockState(toMut, fromWorld.getBlockState(fromMut), Block.NOTIFY_LISTENERS)
+                    toWorld.setBlockState(
+                        toMut, fromWorld.getBlockState(fromMut), Block.NOTIFY_LISTENERS or Block.FORCE_STATE
+                    )
 
                     fromWorld.getBlockEntity(fromMut)?.let { oldBE ->
                         val tag = oldBE.toNbt()
@@ -234,7 +236,7 @@ object JarPlacement {
                 for (x in 0 until fullJarSize) {
                     mut.set(start, x, y, z)
                     world.removeBlockEntity(mut)
-                    world.setBlockState(mut, MCBlocks.AIR.defaultState, Block.NOTIFY_LISTENERS)
+                    world.setBlockState(mut, MCBlocks.AIR.defaultState, Block.NOTIFY_LISTENERS or Block.SKIP_DROPS)
                 }
             }
         }
