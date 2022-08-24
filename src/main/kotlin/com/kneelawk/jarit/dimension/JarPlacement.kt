@@ -1,5 +1,6 @@
 package com.kneelawk.jarit.dimension
 
+import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.JarBlockEntity
 import net.minecraft.block.Block
@@ -62,7 +63,7 @@ object JarPlacement {
         val server = world.server
 
         val jarDim = server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
-            System.err.println("Error getting jar dimension!")
+            Log.log.error("Error getting jar dimension!")
             return
         }
         val jarDimInfo = JarDimensionInfo.get(jarDim)
@@ -76,7 +77,7 @@ object JarPlacement {
         placeJar(jarDim, jarId, jarInfo, jarDimInfo.maxJarSize)
         val toStart = getJarStart(jarId, jarDimInfo.maxJarSize).add(BlockPos(1, 1, 1))
 
-        println("Placing new jar at: $toStart")
+        Log.log.info("Placing new jar at: $toStart")
 
         copyContents(fromStart, toStart, world, jarDim, jarSize)
 
@@ -97,7 +98,7 @@ object JarPlacement {
         val server = world.server
 
         val jarDim = server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
-            System.err.println("Error getting jar dimension!")
+            Log.log.error("Error getting jar dimension!")
             return
         }
         val jarDimInfo = JarDimensionInfo.get(jarDim)
