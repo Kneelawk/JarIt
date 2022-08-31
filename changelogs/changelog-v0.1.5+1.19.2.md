@@ -5,3 +5,4 @@ Jar It! version 0.1.5 for Minecraft 1.19.2
 Changes:
 
 * Replaces some `println` statements with a logger.
+* Removes the reference to the empty `mixins.json` file.
