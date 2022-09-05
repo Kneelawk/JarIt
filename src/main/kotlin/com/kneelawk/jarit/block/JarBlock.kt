@@ -1,5 +1,6 @@
 package com.kneelawk.jarit.block
 
+import com.kneelawk.jarit.blockentity.BlockEntities
 import com.kneelawk.jarit.blockentity.JarBlockEntity
 import com.kneelawk.jarit.item.JarBlockItem
 import net.minecraft.block.BlockRenderType
@@ -7,6 +8,8 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.BlockWithEntity
 import net.minecraft.block.ShapeContext
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BlockEntityTicker
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -57,5 +60,11 @@ class JarBlock(settings: Settings) : BlockWithEntity(settings) {
             JarBlockItem.setJarId(itemStack, jar.jarId)
             itemStack
         } ?: ItemStack(Blocks.JAR)
+    }
+
+    override fun <T : BlockEntity> getTicker(
+        world: World, state: BlockState, type: BlockEntityType<T>
+    ): BlockEntityTicker<T>? {
+        return if (!world.isClient) checkType(type, BlockEntities.JAR, JarBlockEntity::tick) else null
     }
 }

@@ -16,10 +16,13 @@ import net.minecraft.nbt.NbtElement
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.TeleportTarget
 import net.minecraft.world.World
+import org.quiltmc.qkl.wrapper.minecraft.math.plus
 import org.quiltmc.qsl.worldgen.dimension.api.QuiltDimensions
+import java.util.stream.Stream
 import kotlin.math.min
 import net.minecraft.block.Blocks as MCBlocks
 
@@ -65,6 +68,13 @@ object JarPlacement {
         }
 
         return BlockPos(x + regionX * REGION_SIZE, y, z + regionZ * REGION_SIZE)
+    }
+
+    fun getJarChunks(id: Long, jarSize: Int, maxSize: Int): Stream<ChunkPos> {
+        val startPos = getJarStart(id, maxSize)
+        val endPos = startPos + BlockPos(jarSize + 2, 0, jarSize + 2)
+
+        return ChunkPos.stream(ChunkPos(startPos), ChunkPos(endPos))
     }
 
     fun capture(world: ServerWorld, jarStart: BlockPos, fullJarSize: Int) {
