@@ -50,4 +50,12 @@ class JarBlock(settings: Settings) : BlockWithEntity(settings) {
             world.spawnEntity(itemEntity)
         }
     }
+
+    override fun getPickStack(world: BlockView, pos: BlockPos, state: BlockState): ItemStack {
+        return (world.getBlockEntity(pos) as? JarBlockEntity)?.let { jar ->
+            val itemStack = ItemStack(Blocks.JAR)
+            JarBlockItem.setJarId(itemStack, jar.jarId)
+            itemStack
+        } ?: ItemStack(Blocks.JAR)
+    }
 }

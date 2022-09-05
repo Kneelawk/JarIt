@@ -75,7 +75,7 @@ class JarDimensionInfo : PersistentState {
         return info
     }
 
-    fun getJar(jarId: Long): JarInfo {
+    fun getJar(jarId: Long): JarInfo? {
         return jars.get(jarId)
     }
 

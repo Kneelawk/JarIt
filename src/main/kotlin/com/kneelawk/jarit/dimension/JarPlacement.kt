@@ -3,15 +3,23 @@ package com.kneelawk.jarit.dimension
 import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.JarBlockEntity
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
+import net.minecraft.entity.Entity
+import net.minecraft.entity.ItemEntity
+import net.minecraft.item.ItemStack
+import net.minecraft.loot.context.LootContext
+import net.minecraft.loot.context.LootContextParameters
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.TeleportTarget
 import net.minecraft.world.World
+import org.quiltmc.qsl.worldgen.dimension.api.QuiltDimensions
 import kotlin.math.min
 import net.minecraft.block.Blocks as MCBlocks
 
@@ -59,7 +67,7 @@ object JarPlacement {
         return BlockPos(x + regionX * REGION_SIZE, y, z + regionZ * REGION_SIZE)
     }
 
-    fun capture(world: ServerWorld, start: BlockPos, fullJarSize: Int) {
+    fun capture(world: ServerWorld, jarStart: BlockPos, fullJarSize: Int) {
         val server = world.server
 
         val jarDim = server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
@@ -72,20 +80,22 @@ object JarPlacement {
         val jarInfo = jarDimInfo.addJar(jarSize)
         val jarId = jarInfo.jarId
 
-        val fromStart = start.add(BlockPos(1, 1, 1))
+        val dimStart = getJarStart(jarId, jarDimInfo.maxJarSize)
 
-        placeJar(jarDim, jarId, jarInfo, jarDimInfo.maxJarSize)
-        val toStart = getJarStart(jarId, jarDimInfo.maxJarSize).add(BlockPos(1, 1, 1))
+        val fromStart = jarStart.add(BlockPos(1, 1, 1))
+        val toStart = dimStart.add(BlockPos(1, 1, 1))
 
         Log.log.info("Placing new jar at: $toStart")
 
+        placeJar(jarDim, jarId, jarInfo, jarDimInfo.maxJarSize)
+
         copyContents(fromStart, toStart, world, jarDim, jarSize)
 
-        movePlayers(fromStart, toStart, world, jarDim, jarSize)
+        moveEntities(fromStart, toStart, world, jarDim, jarSize)
 
-        clearArea(world, start, fullJarSize)
+        clearArea(world, jarStart, fullJarSize, true)
 
-        val putJar = BlockPos(start.x + fullJarSize / 2, start.y, start.z + fullJarSize / 2)
+        val putJar = BlockPos(jarStart.x + fullJarSize / 2, jarStart.y, jarStart.z + fullJarSize / 2)
 
         world.setBlockState(putJar, Blocks.JAR.defaultState)
         (world.getBlockEntity(putJar) as JarBlockEntity).updateJarId(jarId)
@@ -103,6 +113,12 @@ object JarPlacement {
         }
         val jarDimInfo = JarDimensionInfo.get(jarDim)
         val jarInfo = jarDimInfo.getJar(jarId)
+
+        if (jarInfo == null) {
+            world.breakBlock(jar, false)
+            return
+        }
+
         val jarSize = jarInfo.size
         val fullJarSize = jarSize + 2
 
@@ -112,13 +128,16 @@ object JarPlacement {
         val fromStart = dimStart.add(BlockPos(1, 1, 1))
         val toStart = jarStart.add(BlockPos(1, 1, 1))
 
+        // clear out blocks in the way
+        clearArea(world, jarStart, fullJarSize, false)
+
         placeOutsideJar(world, jarStart, jarSize)
 
         copyContents(fromStart, toStart, jarDim, world, jarSize)
 
-        movePlayers(fromStart, toStart, jarDim, world, jarSize)
+        moveEntities(fromStart, toStart, jarDim, world, jarSize)
 
-        clearArea(jarDim, dimStart, jarDimInfo.maxJarSize + 2)
+        clearArea(jarDim, dimStart, jarDimInfo.maxJarSize + 2, true)
 
         jarDimInfo.removeJar(jarId)
     }
@@ -143,7 +162,7 @@ object JarPlacement {
         }
 
         // -x wall
-        for (y in 1 until jarSize + 1) {
+        for (y in 0 until jarSize + 2) {
             for (z in 0 until jarSize + 2) {
                 mutable.set(start, 0, y, z)
                 world.setBlockState(mutable, glassState)
@@ -151,15 +170,15 @@ object JarPlacement {
         }
 
         // -z wall
-        for (y in 1 until jarSize + 1) {
-            for (x in 1 until jarSize + 1) {
+        for (y in 0 until jarSize + 2) {
+            for (x in 0 until jarSize + 2) {
                 mutable.set(start, x, y, 0)
                 world.setBlockState(mutable, glassState)
             }
         }
 
         // +x wall
-        for (y in 1 until jarSize + 1) {
+        for (y in 0 until jarSize + 2) {
             for (z in 0 until jarSize + 2) {
                 mutable.set(start, jarSize + 1, y, z)
                 world.setBlockState(mutable, glassState)
@@ -167,8 +186,8 @@ object JarPlacement {
         }
 
         // +z wall
-        for (y in 1 until jarSize + 1) {
-            for (x in 1 until jarSize + 1) {
+        for (y in 0 until jarSize + 2) {
+            for (x in 0 until jarSize + 2) {
                 mutable.set(start, x, y, jarSize + 1)
                 world.setBlockState(mutable, glassState)
             }
@@ -213,33 +232,74 @@ object JarPlacement {
         if (tag.contains("z", NbtElement.NUMBER_TYPE.toInt())) tag.putInt("z", toMut.z)
     }
 
-    private fun movePlayers(
+    private fun moveEntities(
         fromStart: BlockPos, toStart: BlockPos, fromWorld: ServerWorld, toWorld: ServerWorld, jarSize: Int
     ) {
-        val insideArea = BlockBox(
-            fromStart.x, fromStart.y, fromStart.z, fromStart.x + jarSize, fromStart.y + jarSize, fromStart.z + jarSize
-        )
+        val insideArea = Box(fromStart, fromStart.add(BlockPos(jarSize, jarSize, jarSize)))
 
         val offset = Vec3d.of(toStart.subtract(fromStart))
 
-        val players = fromWorld.getPlayers { insideArea.contains(it.blockPos) }
-        players.forEach {
+        // FIXME: currently returns no entities when no players are loading chunks from inside a jar
+        val entities = fromWorld.getOtherEntities(null, insideArea)
+        entities.forEach {
             val oldPos = it.pos
             val newPos = oldPos.add(offset)
-            it.teleport(toWorld, newPos.x, newPos.y, newPos.z, it.headYaw, it.pitch)
+            QuiltDimensions.teleport<Entity>(it, toWorld, TeleportTarget(newPos, it.velocity, it.headYaw, it.pitch))
         }
     }
 
-    private fun clearArea(world: ServerWorld, start: BlockPos, fullJarSize: Int) {
+    private fun clearArea(world: ServerWorld, start: BlockPos, fullJarSize: Int, destroy: Boolean) {
+        val toDrop = ObjectArrayList<Pair<ItemStack, BlockPos>>()
+
         val mut = BlockPos.Mutable()
         for (y in (0 until fullJarSize).reversed()) {
             for (z in 0 until fullJarSize) {
                 for (x in 0 until fullJarSize) {
                     mut.set(start, x, y, z)
-                    world.removeBlockEntity(mut)
-                    world.setBlockState(mut, MCBlocks.AIR.defaultState, Block.NOTIFY_LISTENERS or Block.SKIP_DROPS)
+
+                    if (destroy) {
+                        world.removeBlockEntity(mut)
+                        world.setBlockState(mut, MCBlocks.AIR.defaultState, Block.NOTIFY_LISTENERS or Block.SKIP_DROPS)
+                    } else {
+                        val state = world.getBlockState(mut)
+                        if (!state.isAir) {
+                            val imm = mut.toImmutable()
+                            val blockEntity = if (state.hasBlockEntity()) world.getBlockEntity(imm) else null
+
+                            val builder = LootContext.Builder(world)
+                                .random(world.random)
+                                .parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(imm))
+                                .parameter(LootContextParameters.TOOL, ItemStack.EMPTY)
+                                .optionalParameter(LootContextParameters.BLOCK_ENTITY, blockEntity)
+
+                            state.onStacksDropped(world, imm, ItemStack.EMPTY, false)
+                            state.getDroppedStacks(builder).forEach { tryMergeStack(toDrop, it, imm) }
+
+                            world.setBlockState(imm, MCBlocks.AIR.defaultState, Block.NOTIFY_ALL)
+                        }
+                    }
                 }
             }
         }
+
+        for ((stack, pos) in toDrop) {
+            Block.dropStack(world, pos, stack)
+        }
+    }
+
+    private fun tryMergeStack(stacks: ObjectArrayList<Pair<ItemStack, BlockPos>>, stack: ItemStack, pos: BlockPos) {
+        val i = stacks.size
+        for (j in 0 until i) {
+            val pair = stacks[j]
+            val itemStack = pair.first
+            if (ItemEntity.canMerge(itemStack, stack)) {
+                val itemStack2 = ItemEntity.merge(itemStack, stack, 16)
+                stacks[j] = Pair(itemStack2, pair.second)
+                if (stack.isEmpty) {
+                    return
+                }
+            }
+        }
+        stacks.add(Pair(stack, pos))
     }
 }
