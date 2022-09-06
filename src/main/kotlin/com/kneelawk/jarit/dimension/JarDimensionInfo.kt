@@ -125,6 +125,8 @@ class JarDimensionInfo : PersistentState {
 
                 val chunkPos = ChunkPos(chunkLong)
                 world.setChunkForced(chunkPos.x, chunkPos.z, false)
+
+                markDirty()
             }
         }
     }
@@ -139,6 +141,8 @@ class JarDimensionInfo : PersistentState {
             }
             loadedChunks.put(key, world.time)
         }
+
+        markDirty()
     }
 
     fun addJar(jarSize: Int): JarInfo {
@@ -150,14 +154,14 @@ class JarDimensionInfo : PersistentState {
         return info
     }
 
-    fun getJar(jarId: Long): JarInfo? {
-        return jars.get(jarId)
-    }
+    fun getJar(jarId: Long): JarInfo? = jars.get(jarId)
 
     fun removeJar(jarId: Long) {
         jars.remove(jarId)
         markDirty()
     }
+
+    fun hasJar(jarId: Long): Boolean = jars.containsKey(jarId)
 
     private fun getNextJarId(): Long {
         var jarId = nextId++
