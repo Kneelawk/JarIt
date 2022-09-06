@@ -9,6 +9,7 @@ import org.quiltmc.loader.api.ModContainer
 
 @Suppress("unused")
 fun init(mod: ModContainer) {
+    JarItConfig.ensureInit()
     Blocks.init()
     Items.init()
     BlockEntities.init()

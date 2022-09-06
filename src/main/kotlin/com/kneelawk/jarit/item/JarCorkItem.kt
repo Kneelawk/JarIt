@@ -1,6 +1,7 @@
 package com.kneelawk.jarit.item
 
 import com.kneelawk.jarit.Constants.msg
+import com.kneelawk.jarit.JarItConfig
 import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.dimension.JarPlacement
@@ -135,6 +136,17 @@ class JarCorkItem(settings: Settings) : Item(settings) {
         val world = context.world
         val pos = context.blockPos
         val player = context.player
+
+        if (player == null && !JarItConfig.INSTANCE.nonPlayerUsable) {
+            return ActionResult.FAIL
+        }
+
+        if (player?.canModifyBlocks() == false && !JarItConfig.INSTANCE.adventureModeUsable) {
+            if (!world.isClient) {
+                player.sendMessage(msg("error.adventure"), true)
+            }
+            return ActionResult.FAIL
+        }
 
         if (!isValid(world, pos, player)) return ActionResult.FAIL
 

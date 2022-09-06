@@ -6,6 +6,7 @@
   "item.jar-it.jar_cork": "Jar Cork",
   "item.jar-it.jar_opener": "Jar Opener",
   "itemGroup.jar-it.item_group": "Jar It!",
+  "message.jar-it.error.adventure": "Adventure-mode use is disabled.",
   "message.jar-it.error.not_jar_glass": "The Jar Cork must be used on the ceiling of a cube \"jar\" made out of Jar Glass.",
   "message.jar-it.error.not_ceiling": "The Jar Cork must be used on the ceiling of the jar to capture.",
   "message.jar-it.error.gap": "Either this jar is missing a block at %s or has an extra block at %s.",
