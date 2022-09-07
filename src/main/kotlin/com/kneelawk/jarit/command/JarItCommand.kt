@@ -121,7 +121,7 @@ object JarItCommand {
                             ?: (JarPlacement.getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1))
 
                         val jarText = jarText(jarInfo, pos)
-                        val confirmText = Texts.bracketed(msg("destroy.confirm", jarInfo.jarId, jarInfo.size))
+                        val confirmText = Texts.bracketed(msg("destroy.confirm", jarInfo.jarId, jarInfo.size + 2))
                             .styled {
                                 it.withColor(Formatting.RED)
                                     .withClickEvent(
@@ -138,7 +138,7 @@ object JarItCommand {
                     } else {
                         JarPlacement.destroyJar(server, jarDim, jarDimInfo, jarInfo)
 
-                        sendFeedback(msg("destroy.success", jarInfo.jarId, jarInfo.size))
+                        sendFeedback(msg("destroy.success", jarInfo.jarId, jarInfo.size + 2))
                     }
 
                     CommandResult.success()
