@@ -13,15 +13,14 @@ import net.minecraft.loot.context.LootContext
 import net.minecraft.loot.context.LootContextParameters
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 import net.minecraft.world.TeleportTarget
 import net.minecraft.world.World
 import org.quiltmc.qkl.wrapper.minecraft.math.plus
 import org.quiltmc.qsl.worldgen.dimension.api.QuiltDimensions
+import java.util.function.Predicate
 import java.util.stream.Stream
 import kotlin.math.min
 import net.minecraft.block.Blocks as MCBlocks
@@ -77,13 +76,68 @@ object JarPlacement {
         return ChunkPos.stream(ChunkPos(startPos), ChunkPos(endPos))
     }
 
-    fun capture(world: ServerWorld, jarStart: BlockPos, fullJarSize: Int) {
-        val server = world.server
-
-        val jarDim = server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
+    fun getJarDimension(server: MinecraftServer): ServerWorld? {
+        return server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
             Log.log.error("Error getting jar dimension!")
-            return
+            return null
         }
+    }
+
+    fun createNewJar(server: MinecraftServer, fullJarSize: Int): JarCreateResult {
+        val jarDim = getJarDimension(server) ?: return JarCreateResult.NoJarDimension
+        val jarDimInfo = JarDimensionInfo.get(jarDim)
+
+        val jarSize = fullJarSize - 2
+        val jarInfo = jarDimInfo.addJar(jarSize)
+        val jarId = jarInfo.jarId
+
+        val jarStart = getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1)
+        Log.log.info("Creating new jar at: $jarStart")
+
+        placeJar(jarDim, jarId, jarInfo, jarDimInfo.maxJarSize)
+
+        return JarCreateResult.Success(jarInfo)
+    }
+
+    fun createJarWithId(server: MinecraftServer, fullJarSize: Int, jarId: Long): JarCreateResult {
+        val jarDim = getJarDimension(server) ?: return JarCreateResult.NoJarDimension
+        val jarDimInfo = JarDimensionInfo.get(jarDim)
+
+        if (jarDimInfo.hasJar(jarId)) return JarCreateResult.JarAlreadyExists
+
+        val jarSize = fullJarSize - 2
+        val jarInfo = JarInfo(jarId, jarSize)
+        jarDimInfo.putJar(jarInfo)
+
+        val jarStart = getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1)
+        Log.log.info("Creating new jar at: $jarStart")
+
+        placeJar(jarDim, jarId, jarInfo, jarDimInfo.maxJarSize)
+
+        return JarCreateResult.Success(jarInfo)
+    }
+
+    fun destroyJar(server: MinecraftServer, jarDim: ServerWorld, jarDimInfo: JarDimensionInfo, jarInfo: JarInfo) {
+        val overworld = server.overworld
+        val spawn = Vec3d.ofBottomCenter(overworld.spawnPos)
+
+        val dimStart = getJarStart(jarInfo.jarId, jarDimInfo.maxJarSize)
+        val fromStart = dimStart + BlockPos(1, 1, 1)
+
+        val insideArea = Box(fromStart, fromStart.add(BlockPos(jarInfo.size, jarInfo.size, jarInfo.size)))
+
+        val entities = jarDim.getOtherEntities(null, insideArea)
+        entities.forEach {
+            QuiltDimensions.teleport<Entity>(it, overworld, TeleportTarget(spawn, it.velocity, it.headYaw, it.pitch))
+        }
+
+        clearArea(jarDim, dimStart, jarDimInfo.maxJarSize + 2, true)
+
+        jarDimInfo.removeJar(jarInfo.jarId)
+    }
+
+    fun capture(world: ServerWorld, jarStart: BlockPos, fullJarSize: Int) {
+        val jarDim = getJarDimension(world.server) ?: return
         val jarDimInfo = JarDimensionInfo.get(jarDim)
 
         val jarSize = fullJarSize - 2
@@ -115,12 +169,7 @@ object JarPlacement {
         val jarBE = world.getBlockEntity(jar) as? JarBlockEntity ?: return
         val jarId = jarBE.jarId
 
-        val server = world.server
-
-        val jarDim = server.getWorld(Dimensions.JAR_DIMENSION_WORLD_KEY) ?: run {
-            Log.log.error("Error getting jar dimension!")
-            return
-        }
+        val jarDim = getJarDimension(world.server) ?: return
         val jarDimInfo = JarDimensionInfo.get(jarDim)
         val jarInfo = jarDimInfo.getJar(jarId)
 
@@ -150,6 +199,38 @@ object JarPlacement {
         clearArea(jarDim, dimStart, jarDimInfo.maxJarSize + 2, true)
 
         jarDimInfo.removeJar(jarId)
+    }
+
+    fun findSafeDestination(server: MinecraftServer, jarInfo: JarInfo): BlockPos? {
+        val jarDim = getJarDimension(server) ?: return null
+        val jarDimInfo = JarDimensionInfo.get(jarDim)
+        return findSafeDestination(jarDim, jarInfo, jarDimInfo.maxJarSize)
+    }
+
+    fun findSafeDestination(jarDim: World, jarInfo: JarInfo, maxJarSize: Int): BlockPos? {
+        val jarStart = getJarStart(jarInfo.jarId, maxJarSize) + BlockPos(1, 1, 1)
+
+        fun airLike(pos: BlockPos): Predicate<BlockState> {
+            return Predicate { it.getCollisionShape(jarDim, pos).isEmpty }
+        }
+
+        val mut = BlockPos.Mutable()
+        for (y in 0 until jarInfo.size) {
+            for (z in 0 until jarInfo.size) {
+                for (x in 0 until jarInfo.size) {
+                    mut.set(jarStart, x, y, z)
+
+                    if (jarDim.testBlockState(mut, airLike(mut))) {
+                        val up = mut.offset(Direction.UP)
+                        if (jarDim.testBlockState(up, airLike(up))) {
+                            return mut.toImmutable()
+                        }
+                    }
+                }
+            }
+        }
+
+        return null
     }
 
     private fun placeJar(world: World, id: Long, info: JarInfo, maxJarSize: Int) {
@@ -249,7 +330,6 @@ object JarPlacement {
 
         val offset = Vec3d.of(toStart.subtract(fromStart))
 
-        // FIXME: currently returns no entities when no players are loading chunks from inside a jar
         val entities = fromWorld.getOtherEntities(null, insideArea)
         entities.forEach {
             val oldPos = it.pos
@@ -311,5 +391,11 @@ object JarPlacement {
             }
         }
         stacks.add(Pair(stack, pos))
+    }
+
+    sealed interface JarCreateResult {
+        object NoJarDimension : JarCreateResult
+        object JarAlreadyExists : JarCreateResult
+        data class Success(val info: JarInfo) : JarCreateResult
     }
 }

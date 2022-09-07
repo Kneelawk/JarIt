@@ -4,13 +4,12 @@ import com.kneelawk.jarit.Constants.msg
 import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.dimension.JarPlacement
+import com.kneelawk.jarit.util.coordsText
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.*
 import net.minecraft.util.ActionResult
-import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
@@ -108,26 +107,6 @@ class JarCorkItem(settings: Settings) : Item(settings) {
                 return false
             }
             return true
-        }
-
-        private fun coordsText(pos: BlockPos): Text {
-            return Texts.bracketed(
-                Text.translatable("chat.coordinates", pos.x.toString(), pos.y.toString(), pos.z.toString())
-            )
-                .styled { style: Style ->
-                    style.withColor(Formatting.GREEN)
-                        .withClickEvent(
-                            ClickEvent(
-                                ClickEvent.Action.SUGGEST_COMMAND,
-                                "/tp @s ${pos.x} ${pos.y} ${pos.z}"
-                            )
-                        )
-                        .withHoverEvent(
-                            HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.coordinates.tooltip")
-                            )
-                        )
-                }
         }
     }
 

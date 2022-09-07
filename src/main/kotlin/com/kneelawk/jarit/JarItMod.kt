@@ -2,6 +2,7 @@ package com.kneelawk.jarit
 
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.BlockEntities
+import com.kneelawk.jarit.command.JarItCommand
 import com.kneelawk.jarit.dimension.Dimensions
 import com.kneelawk.jarit.item.Items
 import com.kneelawk.jarit.net.Networking
@@ -14,4 +15,5 @@ fun init(mod: ModContainer) {
     BlockEntities.init()
     Dimensions.init()
     Networking.init()
+    JarItCommand.init()
 }

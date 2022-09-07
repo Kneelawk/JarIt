@@ -154,12 +154,19 @@ class JarDimensionInfo : PersistentState {
         return info
     }
 
+    fun putJar(jar: JarInfo) {
+        jars.put(jar.jarId, jar)
+        markDirty()
+    }
+
     fun getJar(jarId: Long): JarInfo? = jars.get(jarId)
 
     fun removeJar(jarId: Long) {
         jars.remove(jarId)
         markDirty()
     }
+
+    fun listJars(): Collection<JarInfo> = jars.values
 
     fun hasJar(jarId: Long): Boolean = jars.containsKey(jarId)
 

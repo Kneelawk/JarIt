@@ -6,10 +6,20 @@
   "item.jar-it.jar_cork": "Jar Cork",
   "item.jar-it.jar_opener": "Jar Opener",
   "itemGroup.jar-it.item_group": "Jar It!",
+  "message.jar-it.create.success": "Jar created with %s.",
+  "message.jar-it.error.no_jar_at": "There is no jar at %s.",
+  "message.jar-it.error.no_jar_dim": "No jar dimension???",
+  "message.jar-it.error.no_jar": "No jar with id %d.",
+  "message.jar-it.error.jar_exists": "A jar with the id %d already exists at %s.",
   "message.jar-it.error.not_jar_glass": "The Jar Cork must be used on the ceiling of a cube \"jar\" made out of Jar Glass.",
   "message.jar-it.error.not_ceiling": "The Jar Cork must be used on the ceiling of the jar to capture.",
   "message.jar-it.error.gap": "Either this jar is missing a block at %s or has an extra block at %s.",
   "message.jar-it.error.not_square": "The jar you tried to create must be cubic, but is %d x %d x %d.",
   "message.jar-it.error.too_small": "A jar must be at least 3 blocks in external diameter but this one is %d.",
-  "message.jar-it.error.too_large": "A jar cannot be any larger than 64 blocks in external diameter but this one is %d."
+  "message.jar-it.error.too_large": "A jar cannot be any larger than 64 blocks in external diameter but this one is %d.",
+  "message.jar-it.jar": "id: %d, size: %d",
+  "message.jar-it.list": "Existing jar ids: %s",
+  "message.jar-it.destroy.check": "Are you sure you would like to destroy the jar %s? %s",
+  "message.jar-it.destroy.confirm": "Destroy Jar id: %d, size: %d",
+  "message.jar-it.destroy.success": "Jar id: %d, size: %d destroyed."
 }
