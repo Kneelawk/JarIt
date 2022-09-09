@@ -16,7 +16,7 @@ class JarOpenerItem(settings: Settings) : Item(settings) {
 
         if (world.isClient || world !is ServerWorld) return ActionResult.SUCCESS
 
-        JarPlacement.release(world, pos)
+        JarPlacement.release(world, pos, context.player)
 
         return ActionResult.CONSUME
     }

@@ -1,5 +1,6 @@
 package com.kneelawk.jarit.dimension
 
+import com.kneelawk.jarit.Constants.msg
 import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.JarBlockEntity
@@ -8,6 +9,7 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.context.LootContext
 import net.minecraft.loot.context.LootContextParameters
@@ -103,10 +105,13 @@ object JarPlacement {
         val jarDim = getJarDimension(server) ?: return JarCreateResult.NoJarDimension
         val jarDimInfo = JarDimensionInfo.get(jarDim)
 
-        if (jarDimInfo.hasJar(jarId)) return JarCreateResult.JarAlreadyExists
+        if (jarDimInfo.hasJar(jarId)) return JarCreateResult.JarAlreadyExists(
+            requireNotNull(
+                jarDimInfo.getJar(jarId)
+            ) { "Jar Dim info claims to have a jar with id $jarId but the jar was null" })
 
         val jarSize = fullJarSize - 2
-        val jarInfo = JarInfo(jarId, jarSize)
+        val jarInfo = JarInfo(jarId, jarSize, false)
         jarDimInfo.putJar(jarInfo)
 
         val jarStart = getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1)
@@ -165,7 +170,7 @@ object JarPlacement {
         (world.getBlockEntity(putJar) as JarBlockEntity).updateJarId(jarId)
     }
 
-    fun release(world: ServerWorld, jar: BlockPos) {
+    fun release(world: ServerWorld, jar: BlockPos, player: PlayerEntity?) {
         val jarBE = world.getBlockEntity(jar) as? JarBlockEntity ?: return
         val jarId = jarBE.jarId
 
@@ -175,6 +180,11 @@ object JarPlacement {
 
         if (jarInfo == null) {
             world.breakBlock(jar, false)
+            return
+        }
+
+        if (jarInfo.locked) {
+            player?.sendMessage(msg("error.locked"), true)
             return
         }
 
@@ -395,7 +405,7 @@ object JarPlacement {
 
     sealed interface JarCreateResult {
         object NoJarDimension : JarCreateResult
-        object JarAlreadyExists : JarCreateResult
+        data class JarAlreadyExists(val info: JarInfo) : JarCreateResult
         data class Success(val info: JarInfo) : JarCreateResult
     }
 }

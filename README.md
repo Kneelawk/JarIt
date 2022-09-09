@@ -29,6 +29,8 @@ This mod is a submission for the 2022 ModFest: Singularity.
   given block position.
 * `/jar-it give <id>` - Gives the player a Jar item for the specified jar id.
 * `/jar-it list` - Lists all the jars in the world.
+* `/jar-it lock <id>` - Locks a jar so that it cannot be opened with a Jar Opener.
+* `/jar-it unlock <id>` - Unlocks a locked jar so that it can be opened with a Jar Opener.
 
 ## Known Issues
 

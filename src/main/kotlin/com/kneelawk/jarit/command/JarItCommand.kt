@@ -1,7 +1,6 @@
 package com.kneelawk.jarit.command
 
 import com.kneelawk.jarit.Constants.msg
-import com.kneelawk.jarit.Log
 import com.kneelawk.jarit.block.Blocks
 import com.kneelawk.jarit.blockentity.JarBlockEntity
 import com.kneelawk.jarit.dimension.Dimensions
@@ -43,6 +42,8 @@ object JarItCommand {
                 setupEnter()
                 setupGive()
                 setupList()
+                setupLock("lock", true)
+                setupLock("unlock", false)
             }
         }
     }
@@ -58,7 +59,9 @@ object JarItCommand {
                         val fullJarSize = size().value()
 
                         val jarInfo = when (val res = JarPlacement.createNewJar(server, fullJarSize)) {
-                            JarPlacement.JarCreateResult.JarAlreadyExists -> throw AssertionError() // shouldn't ever happen
+                            is JarPlacement.JarCreateResult.JarAlreadyExists -> throw AssertionError(
+                                "CreateNewJar tried to create an already existing jar???"
+                            ) // shouldn't ever happen
                             JarPlacement.JarCreateResult.NoJarDimension -> return@executeWithResult CommandResult.failure(
                                 msg("error.no_jar_dim")
                             )
@@ -67,7 +70,7 @@ object JarItCommand {
 
                         giveJar(jarInfo.jarId)
 
-                        sendFeedback(msg("create.success", jarText(server, jarInfo, jarDimInfo.maxJarSize)))
+                        sendFeedback(msg("create.success", jarText(server, jarInfo, jarDimInfo.maxJarSize)), true)
 
                         CommandResult.success()
                     } else {
@@ -79,7 +82,7 @@ object JarItCommand {
 
                         val (jarInfo, exists) = when (val res =
                             JarPlacement.createJarWithId(server, fullJarSize, jarId)) {
-                            JarPlacement.JarCreateResult.JarAlreadyExists -> (JarInfo(jarId, fullJarSize - 2) to true)
+                            is JarPlacement.JarCreateResult.JarAlreadyExists -> (res.info to true)
                             JarPlacement.JarCreateResult.NoJarDimension -> return@executeWithResult CommandResult.failure(
                                 msg("error.no_jar_dim")
                             )
@@ -93,7 +96,7 @@ object JarItCommand {
                                 msg("error.jar_exists", jarId, jarText(server, jarInfo, jarDimInfo.maxJarSize))
                             )
                         } else {
-                            sendFeedback(msg("create.success", jarText(server, jarInfo, jarDimInfo.maxJarSize)))
+                            sendFeedback(msg("create.success", jarText(server, jarInfo, jarDimInfo.maxJarSize)), true)
                             CommandResult.success()
                         }
                     }
@@ -121,15 +124,15 @@ object JarItCommand {
                             ?: (JarPlacement.getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1))
 
                         val jarText = jarText(jarInfo, pos)
-                        val confirmText = Texts.bracketed(msg("destroy.confirm", jarInfo.jarId, jarInfo.size + 2))
+                        val confirmText = Texts.bracketed(msg("destroy.confirm", jarInfo.jarId))
                             .styled {
                                 it.withColor(Formatting.RED)
                                     .withClickEvent(
-                                        ClickEvent(ClickEvent.Action.RUN_COMMAND, "/jar-it destroy $jarId force")
+                                        ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/jar-it destroy $jarId force")
                                     )
                                     .withHoverEvent(
                                         HoverEvent(
-                                            HoverEvent.Action.SHOW_TEXT, Text.literal("/jar-it destroy $jarId force")
+                                            HoverEvent.Action.SHOW_TEXT, msg("destory.confirm.hover")
                                         )
                                     )
                             }
@@ -138,7 +141,8 @@ object JarItCommand {
                     } else {
                         JarPlacement.destroyJar(server, jarDim, jarDimInfo, jarInfo)
 
-                        sendFeedback(msg("destroy.success", jarInfo.jarId, jarInfo.size + 2))
+                        val pos = JarPlacement.getJarStart(jarId, jarDimInfo.maxJarSize) + BlockPos(1, 1, 1)
+                        sendFeedback(msg("destroy.success", jarText(jarInfo, pos)), true)
                     }
 
                     CommandResult.success()
@@ -149,11 +153,11 @@ object JarItCommand {
 
     private fun LiteralArgumentBuilder<ServerCommandSource>.setupList() {
         required(literal("list")) {
-            execute {
-                val jarDimInfo = JarDimensionInfo.get(server) ?: run {
-                    Log.log.error("Error getting jar dimension")
-                    return@execute
-                }
+            executeWithResult {
+                val jarDimInfo = JarDimensionInfo.get(server) ?: return@executeWithResult CommandResult.failure(
+                    msg("error.no_jar_dim")
+                )
+
                 sendFeedback(
                     msg(
                         "list",
@@ -163,6 +167,8 @@ object JarItCommand {
                             )
                         })
                 )
+
+                CommandResult.success()
             }
         }
     }
@@ -195,6 +201,26 @@ object JarItCommand {
         }
     }
 
+    private fun LiteralArgumentBuilder<ServerCommandSource>.setupLock(command: String, lock: Boolean) {
+        required(literal(command), long("id")) { _, id ->
+            suggests(JarIdSuggestionProvider)
+            executeWithResult {
+                val jarId = id().value()
+                val jarDimInfo = JarDimensionInfo.get(server) ?: return@executeWithResult CommandResult.failure(
+                    msg("error.no_jar_dim")
+                )
+
+                val newInfo = jarDimInfo.setJarLocked(jarId, lock) ?: return@executeWithResult CommandResult.failure(
+                    msg("error.no_jar", jarId)
+                )
+
+                sendFeedback(msg("${command}.success", jarText(server, newInfo, jarDimInfo.maxJarSize)), true)
+
+                CommandResult.success()
+            }
+        }
+    }
+
     private fun CommandContext<ServerCommandSource>.enter(jarId: Long, target: ServerPlayerEntity): CommandResult {
         val jarDim = JarPlacement.getJarDimension(server) ?: return CommandResult.failure(msg("error.no_jar_dim"))
         val jarDimInfo = JarDimensionInfo.get(jarDim)
@@ -219,7 +245,7 @@ object JarItCommand {
         val dimId = Dimensions.JAR_DIMENSION_WORLD_KEY.value
 
         return Texts.bracketed(
-            msg("jar", info.jarId, info.size + 2)
+            msg("jar", info.jarId, info.size + 2, info.locked)
         ).styled { style: Style ->
             style.withColor(Formatting.GREEN)
                 .withClickEvent(
@@ -266,7 +292,7 @@ object JarItCommand {
             val itemEntity = player.dropItem(stack, false)
             if (itemEntity != null) {
                 itemEntity.resetPickupDelay()
-                itemEntity.owner = player.getUuid()
+                itemEntity.owner = player.uuid
             }
         }
     }

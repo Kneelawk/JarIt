@@ -17,9 +17,13 @@
   "message.jar-it.error.not_square": "The jar you tried to create must be cubic, but is %d x %d x %d.",
   "message.jar-it.error.too_small": "A jar must be at least 3 blocks in external diameter but this one is %d.",
   "message.jar-it.error.too_large": "A jar cannot be any larger than 64 blocks in external diameter but this one is %d.",
-  "message.jar-it.jar": "id: %d, size: %d",
-  "message.jar-it.list": "Existing jar ids: %s",
+  "message.jar-it.error.locked": "This jar is locked.",
+  "message.jar-it.jar": "id: %d, size: %d, locked: %s",
+  "message.jar-it.list": "Existing jars: %s",
   "message.jar-it.destroy.check": "Are you sure you would like to destroy the jar %s? %s",
-  "message.jar-it.destroy.confirm": "Destroy Jar id: %d, size: %d",
-  "message.jar-it.destroy.success": "Jar id: %d, size: %d destroyed."
+  "message.jar-it.destroy.confirm": "Destroy Jar id: %d",
+  "message.jar-it.destroy.confirm.hover": "Suggest command to destroy the jar",
+  "message.jar-it.destroy.success": "Jar %s destroyed.",
+  "message.jar-it.lock.success": "Locked jar %s.",
+  "message.jar-it.unlock.success": "Unlocked jar %s."
 }

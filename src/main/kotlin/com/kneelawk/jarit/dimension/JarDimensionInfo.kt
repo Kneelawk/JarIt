@@ -147,7 +147,7 @@ class JarDimensionInfo : PersistentState {
 
     fun addJar(jarSize: Int): JarInfo {
         val jarId = getNextJarId()
-        val info = JarInfo(jarId, jarSize)
+        val info = JarInfo(jarId, jarSize, false)
         jars.put(jarId, info)
 
         markDirty()
@@ -169,6 +169,15 @@ class JarDimensionInfo : PersistentState {
     fun listJars(): Collection<JarInfo> = jars.values
 
     fun hasJar(jarId: Long): Boolean = jars.containsKey(jarId)
+
+    fun setJarLocked(jarId: Long, locked: Boolean): JarInfo? {
+        return jars.get(jarId)?.let { info ->
+            val newInfo = info.copy(locked = locked)
+            jars.put(jarId, newInfo)
+            markDirty()
+            newInfo
+        }
+    }
 
     private fun getNextJarId(): Long {
         var jarId = nextId++
